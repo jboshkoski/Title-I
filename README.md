@@ -1,6 +1,3 @@
-# Title-I
-Data Dash Plotly
-
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -9,21 +6,18 @@ import pandas as pd
 import plotly.graph_objs as go
 
 import numpy as np
-
+import plotly.express as px
 
 df = pd.read_csv('https://raw.githubusercontent.com/jboshkoski/Title-I/master/MAP%20and%20Independent%20Reading%20-%20Sheet1.csv?token=AO4OQIDTOU6NQJIZ6LT3DAC6TSNF4')
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets = ['https://codepen.io/amyoshino/pen/jzXypZ.css']
 available_indicators = df['Grade'].unique()
+fig = px.scatter(df, x="Books Read", y="Map Growth", color="Grade", title="MAP Scores and Independent Reading",
+                color_continuous_scale=px.colors.sequential.Viridis, render_mode="webgl")
 
-def build_banner():
-    return html.Div(
-        id="banner",
-        className="banner",
-        children=[
-            html.Img(src=app.get_asset_url("dash-logo.png")),
-            html.H6("Oil and gas ternary map"),
-        ],
-    )
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+    
+
 
 app = dash.Dash(
     __name__,
@@ -55,24 +49,29 @@ app.layout = html.Div(
      
                      
                      html.P('Filter by Grade'),
-                     html.Div([
+                       html.Div([
             dcc.Dropdown(
                 id='xaxis-column',
                 options=[{'label': i, 'value': i} for i in available_indicators],
                 value='Grade'
-            ),
-            dcc.RadioItems(
-                id='xaxis-type',
-                options=[{'label': i, 'value': i} for i in ['2019-2020', '2020-2021', '2021-2022']],
-                value='2019-2020',
-                labelStyle={'display': 'inline-block'}
-            )
+            ), 
+            dcc.Dropdown(
+                id='dropdown_Year',
+                    options=[
+                        {'label': '2019-2020', 'value': '19-20'},
+                        {'label': '2020-2021', 'value': '20-21'},
+                        {'label': '2021-2022', 'value': '21-22'},
+                        ],
+                    value=['19-20'],
+                    multi=True
+                        ),
+            
         ],
         style={'width': '48%', 'display': 'inline-block'}),
         
- 
+
+
                   
-                 
 html.Div(children='RIT Score Increase by Grade', style={
             'textAlign': 'center',
             'color': colors['text']
@@ -94,7 +93,12 @@ dcc.Graph(
                 }
             }
         }
-    )
+    ),
+html.Div([ 
+     
+            dcc.Graph(figure=fig)
+            ]),
+
 ])
 
 
